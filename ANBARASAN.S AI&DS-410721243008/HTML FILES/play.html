@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page with Mini Games</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="main-content">
+        <h1>Welcome to the Main Page</h1>
+        <p>This is the main content of the webpage.</p>
+        <p>The games are displayed in the bottom-right corner.</p>
+    </div>
+    <div id="game-container">
+        <div id="falling-blocks-game">
+            <h2>Falling Blocks Game</h2>
+            <canvas id="fallingCanvas"></canvas>
+            <p id="falling-message"></p>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <script >
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 400;
+    canvas.height = 300;
+
+    let paddleWidth = 50;
+    let paddleHeight = 5;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+
+    let rightPressed = false;
+    let leftPressed = false;
+
+    let ballRadius = 5;
+    let ballX = Math.random() * (canvas.width - ballRadius * 2) + ballRadius;
+    let ballY = ballRadius;
+    let ballDY = 1;
+
+    let score = 0;
+
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keyup', keyUpHandler);
+
+    function keyDownHandler(e) {
+        if(e.key == "Right" || e.key == "ArrowRight") {
+            rightPressed = true;
+        }
+        else if(e.key == "Left" || e.key == "ArrowLeft") {
+            leftPressed = true;
+        }
+    }
+
+    function keyUpHandler(e) {
+        if(e.key == "Right" || e.key == "ArrowRight") {
+            rightPressed = false;
+        }
+        else if(e.key == "Left" || e.key == "ArrowLeft") {
+            leftPressed = false;
+        }
+    }
+
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "#FFD700"; // Gold color for the paddle
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
+        ctx.fillStyle = "#FF4500"; // OrangeRed color for the ball
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawScore() {
+        ctx.font = "12px Comic Sans MS";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Score: " + score, 8, 20);
+    }
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawPaddle();
+        drawBall();
+        drawScore();
+
+        if(rightPressed && paddleX < canvas.width - paddleWidth) {
+            paddleX += 3.5;
+        }
+        else if(leftPressed && paddleX > 0) {
+            paddleX -= 3.5;
+        }
+
+        ballY += ballDY;
+
+        if(ballY + ballRadius > canvas.height - paddleHeight) {
+            if(ballX > paddleX && ballX < paddleX + paddleWidth) {
+                ballY = ballRadius;
+                ballX = Math.random() * (canvas.width - ballRadius * 2) + ballRadius;
+                score++;
+            } else if (ballY + ballRadius > canvas.height) {
+                document.location.reload();
+            }
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    update();
+
+    </script>
+    <script>
+    const canvas = document.getElementById('fallingCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 400;
+    canvas.height = 300;
+
+    const paddleWidth = 80;
+    const paddleHeight = 10;
+    const blockSize = 30;
+    const paddleSpeed = 5;
+    const blockSpeed = 3;
+
+    let paddleX = (canvas.width - paddleWidth) / 2;
+    let rightPressed = false;
+    let leftPressed = false;
+    let blocks = [];
+    let score = 0;
+    let intervalId;
+    let gameOver = false;
+
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keyup', keyUpHandler);
+
+    function keyDownHandler(e) {
+        if (e.key === "Right" || e.key === "ArrowRight") {
+            rightPressed = true;
+        } else if (e.key === "Left" || e.key === "ArrowLeft") {
+            leftPressed = true;
+        }
+    }
+
+    function keyUpHandler(e) {
+        if (e.key === "Right" || e.key === "ArrowRight") {
+            rightPressed = false;
+        } else if (e.key === "Left" || e.key === "ArrowLeft") {
+            leftPressed = false;
+        }
+    }
+
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "#FFD700"; // Gold color for the paddle
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawBlocks() {
+        ctx.fillStyle = "#FF4500"; // OrangeRed color for the blocks
+        blocks.forEach(block => {
+            ctx.beginPath();
+            ctx.rect(block.x, block.y, blockSize, blockSize);
+            ctx.fill();
+            ctx.closePath();
+        });
+    }
+
+    function drawScore() {
+        ctx.font = "16px Comic Sans MS";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Score: " + score, 10, 20);
+    }
+
+    function generateBlock() {
+        let x = Math.random() * (canvas.width - blockSize);
+        blocks.push({ x: x, y: 0 });
+    }
+
+    function updateBlocks() {
+        blocks.forEach(block => {
+            block.y += blockSpeed;
+            if (block.y > canvas.height) {
+                gameOver = true;
+            }
+            if (block.y + blockSize > canvas.height - paddleHeight &&
+                block.x + blockSize > paddleX &&
+                block.x < paddleX + paddleWidth) {
+                blocks.splice(blocks.indexOf(block), 1);
+                score++;
+            }
+        });
+    }
+
+    function update() {
+        if (gameOver) {
+            document.getElementById('falling-message').textContent = 'Game Over! Final Score: ' + score;
+            clearInterval(intervalId);
+            return;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawPaddle();
+        drawBlocks();
+        drawScore();
+        
+        if (rightPressed && paddleX < canvas.width - paddleWidth) {
+            paddleX += paddleSpeed;
+        } else if (leftPressed && paddleX > 0) {
+            paddleX -= paddleSpeed;
+        }
+
+        updateBlocks();
+
+        if (Math.random() < 0.02) {
+            generateBlock();
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    intervalId = setInterval(() => {
+        update();
+    }, 1000 / 60); // 60 frames per second
+</script>
+</body>
+</html>
+

@@ -1,0 +1,47 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    color: #333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#main-content {
+    padding: 20px;
+    text-align: center;
+}
+
+#game-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 3px solid #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    background: radial-gradient(circle, #ffafbd, #ffc3a0);
+    width: 400px;
+    padding: 10px;
+}
+
+canvas {
+    display: block;
+}
+
+#falling-blocks-game {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#falling-message {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
